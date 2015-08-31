@@ -65,7 +65,7 @@ class NkmuCourseCrawler
     
     @courses_list_trs=@courses_list.css('table').last.css('tr')[2..-1]
 
-    @courses_list_trs[0..20].each_with_index do | row, index|
+    @courses_list_trs.each_with_index do | row, index|
       sleep(1) until (
         @threads.delete_if { |t| !t.status };  # remove dead (ended) threads
         @threads.count < 20 ;
