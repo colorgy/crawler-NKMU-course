@@ -18,7 +18,7 @@ class NkmuCourseCrawler
     "六" => "6"
   }
 
-  def initialize year: nil, term: nil
+  def initialize year: nil, term: nil, update_progress: nil, after_each: nil
     @year = year
     @term = term
   end
@@ -81,9 +81,8 @@ class NkmuCourseCrawler
         course_name = table_data[4].text.strip
         course_credits = table_data[5].text.strip.to_i
         course_hours = table_data[6].text.strip.to_i
-        course_require = table_data[7].text.strip
+        course_required = table_data[7].text.strip
         course_lecturer = table_data[8].text.strip
-        course_classroom = table_data[9].text.strip
         course_time=table_data[11].text.strip
 
         #Analyize string of course_time.
@@ -92,26 +91,27 @@ class NkmuCourseCrawler
           course_day_period << i.match(/\((?<day>.)\)(?<period>.*)/)
         end
 
+        course_locations=[]
         course_days = []
         course_periods = []
         course_day_period.each do |i|
           (i[:period].split("-").first..i[:period].split("-").last).each do |k|
             course_days << DAYS[i[:day]]
             course_periods << k
+            course_locations << table_data[9].text.strip
           end
         end
 
-        courses = {
-          :divisional => course_divisional,
-          :department => course_department,
-          :class => course_class,
-          :general_code => course_general_code,
-          :name => course_name,
-          :credits => course_credits,
-          :hours => course_hours,
-          :require => course_require,
-          :lecturer => course_lecturer,
-          :classroom => course_classroom,
+        course = {
+          :year => @year,    # 西元年
+          :term => @term,    # 學期 (第一學期=1，第二學期=2)
+          :name => course_name,    # 課程名稱
+          :lecturer => course_lecturer,    # 授課教師
+          :credits => course_credits,    # 學分數
+          :code => "#{@year}-#{@term}-#{course_general_code}",
+          :general_code => course_general_code,    # 選課代碼
+          :required => course_required.include?('必'),    # 必修或選修
+          :department => course_department,    # 開課系所
           
           :day_1 => course_days[0],
           :day_2 => course_days[1],
@@ -133,19 +133,25 @@ class NkmuCourseCrawler
           :period_8 => course_periods[7],
           :period_9 => course_periods[8],
 
+          :location_1 => course_locations[0],
+          :location_2 => course_locations[1],
+          :location_3 => course_locations[2],
+          :location_4 => course_locations[3],
+          :location_5 => course_locations[4],
+          :location_6 => course_locations[5],
+          :location_7 => course_locations[6],
+          :location_8 => course_locations[7],
+          :location_9 => course_locations[8]
         }
-        @courses << courses
-        print '|'
+        @after_each_proc.call(course: course) if @after_each_proc
+        @courses << course
       end #end thread
     end #end each tr
     ThreadsWait.all_waits(*@threads)
-    return @courses
+    @courses
   end #end courses
 
   def clnt
     @http_client ||= HTTPClient.new
   end
 end
-
-# cwl = NkmuCourseCrawler.new(year: 2014, term: 1)
-# File.write('courses.json', JSON.pretty_generate(cwl.courses))
