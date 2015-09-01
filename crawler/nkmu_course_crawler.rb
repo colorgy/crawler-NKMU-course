@@ -139,7 +139,6 @@ class NkmuCourseCrawler
       end #end thread
     end #end each tr
     ThreadsWait.all_waits(*@threads)
-    binding.pry
     return @courses
   end #end courses
 
@@ -148,5 +147,5 @@ class NkmuCourseCrawler
   end
 end
 
-cwl = NkmuCourseCrawler.new(year: 2014, term: 1)
-File.write('courses.json', JSON.pretty_generate(cwl.courses))
+# cwl = NkmuCourseCrawler.new(year: 2014, term: 1)
+# File.write('courses.json', JSON.pretty_generate(cwl.courses))
