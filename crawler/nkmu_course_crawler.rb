@@ -10,17 +10,19 @@ require 'thwait'
 class NkmuCourseCrawler
 
   DAYS={
-    "一" => "1",
-    "二" => "2",
-    "三" => "3",
-    "四" => "4",
-    "五" => "5",
-    "六" => "6"
+    "一" => 1,
+    "二" => 2,
+    "三" => 3,
+    "四" => 4,
+    "五" => 5,
+    "六" => 6
   }
 
   def initialize year: nil, term: nil, update_progress: nil, after_each: nil
     @year = year
     @term = term
+    @update_progress = update_progress
+    @after_each = after_each
   end
 
   def courses
@@ -123,15 +125,15 @@ class NkmuCourseCrawler
           :day_8 => course_days[7],
           :day_9 => course_days[8],
 
-          :period_1 => course_periods[0],
-          :period_2 => course_periods[1],
-          :period_3 => course_periods[2],
-          :period_4 => course_periods[3],
-          :period_5 => course_periods[4],
-          :period_6 => course_periods[5],
-          :period_7 => course_periods[6],
-          :period_8 => course_periods[7],
-          :period_9 => course_periods[8],
+          :period_1 => course_periods[0].to_i,
+          :period_2 => course_periods[1].to_i,
+          :period_3 => course_periods[2].to_i,
+          :period_4 => course_periods[3].to_i,
+          :period_5 => course_periods[4].to_i,
+          :period_6 => course_periods[5].to_i,
+          :period_7 => course_periods[6].to_i,
+          :period_8 => course_periods[7].to_i,
+          :period_9 => course_periods[8].to_i,
 
           :location_1 => course_locations[0],
           :location_2 => course_locations[1],
@@ -149,9 +151,13 @@ class NkmuCourseCrawler
     end #end each tr
     ThreadsWait.all_waits(*@threads)
     @courses
+    binding.pry
   end #end courses
 
   def clnt
     @http_client ||= HTTPClient.new
   end
 end
+
+cc=NkmuCourseCrawler.new year:2015, term:1
+cc.courses 
