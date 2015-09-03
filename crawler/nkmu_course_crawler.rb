@@ -76,6 +76,7 @@ class NkmuCourseCrawler
       @threads << Thread.new do
         table_data = row.css('td')
 
+        #Analyize data of tr
         course_divisional = table_data[0].text.strip
         course_department  = table_data[1].text.strip
         course_class = table_data[2].text.strip
@@ -151,13 +152,9 @@ class NkmuCourseCrawler
     end #end each tr
     ThreadsWait.all_waits(*@threads)
     @courses
-    binding.pry
   end #end courses
 
   def clnt
     @http_client ||= HTTPClient.new
   end
 end
-
-cc=NkmuCourseCrawler.new year:2015, term:1
-cc.courses 
